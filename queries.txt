@@ -1,0 +1,109 @@
+use dataspark;
+
+/*1.TOP 10 SELLING PRODUCTS NAME */
+
+SELECT 
+    products.Product_Name, 
+    SUM(sales.Quantity) AS Total_Quantity_Sold
+FROM sales 
+JOIN products ON sales.ProductKey = products.ProductKey
+GROUP BY products.Product_Name
+ORDER BY Total_Quantity_Sold DESC
+LIMIT 10;
+
+
+/*2. COUNTRY WISE SALE*/
+
+SELECT customers.country,
+ROUND(sum(sales.Quantity * products.unit_price_usd),2) as TOTALSALES
+from sales 
+join  products on sales.ProductKey=products.ProductKey
+join customers on customers.CustomerKey=sales.CustomerKey
+group by customers.Country;
+
+
+/* 3.TOTAL SALES BY YEAR*/
+
+SELECT 
+    DATE_FORMAT(sales.Order_Date, '%Y') AS YEAR, 
+    round(SUM(sales.Quantity * products.Unit_Price_USD))AS Total_Sales_Amount
+FROM sales
+JOIN products ON sales.ProductKey = products.ProductKey
+GROUP BY YEAR;
+
+/*4. GENDER WISE CUSTOMERS*/
+
+SELECT customers.Gender, COUNT(*) AS TotalCustomers
+FROM Customers 
+GROUP BY customers.Gender;
+
+
+/*5.STORES SQUAREMETER VS SALES*/
+
+select stores.Square_Meters,stores.State,sum(sales.Quantity) as Totatstore
+from sales 
+join stores on sales.StoreKey=stores.StoreKey
+group by stores.StoreKey
+order by Totatstore desc
+LIMIT 5;
+
+
+
+
+/*6.TOTAL SALES ON CATEGORY AND SUBCATEGORY*/
+SELECT 
+    products.Category, products.Subcategory,
+    round(SUM(sales.Quantity * products.Unit_Price_USD))AS Total_SalesAmount
+FROM sales 
+JOIN products ON sales.ProductKey = products.ProductKey
+GROUP BY products.Category, products.Subcategory;
+
+SELECT 
+    products.Category, products.Subcategory,
+    round(SUM(sales.Quantity))AS Total_Sales
+FROM sales 
+JOIN products ON sales.ProductKey = products.ProductKey
+GROUP BY products.Category, products.Subcategory
+order by Total_Sales desc;
+
+/*7.TOP CUSTOMERS*/
+SELECT customers.CustomerKey, customers.Name, 
+round(SUM(sales.Quantity * products.Unit_Price_USD))AS TotalSpendingAmount
+FROM sales 
+JOIN products  ON sales.ProductKey = products.ProductKey
+JOIN customers  ON sales.CustomerKey = customers.CustomerKey
+GROUP BY customers.CustomerKey, customers.Name
+ORDER BY TotalSpendingAmount DESC
+LIMIT 5;
+
+/*8.AVEG EXCHAGE RATES*/
+SELECT 
+    DATE_FORMAT(Date, '%Y') AS YEAR,
+    Currency, 
+    round(AVG(Exchange),2 )AS AverageExchangeRate
+FROM exchange
+GROUP BY YEAR, Currency
+ORDER BY YEAR ;
+    
+    
+/*9.CURRENCY IMPACT ON SALES*/
+SELECT 
+  sales.Currency_Code, 
+  round(SUM(sales.Quantity * products.Unit_Price_USD)) AS TotalSales_Amount, 
+  COUNT(sales.Order_Number) AS NumberOfOrders
+FROM Sales 
+JOIN Products ON sales.ProductKey = products.ProductKey
+GROUP BY sales.Currency_Code
+ORDER BY TotalSales_Amount DESC;
+
+    
+/*10.TOP CITIES WITH HIGH NO OF CUSTOMERS*/
+SELECT 
+    City, 
+    COUNT(CustomerKey) AS TotalCustomers
+FROM Customers
+GROUP BY City
+ORDER BY 
+    TotalCustomers DESC;
+
+
